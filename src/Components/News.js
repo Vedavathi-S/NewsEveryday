@@ -20,14 +20,13 @@ static defaultProps = {
     console.log("This is a news constructor");
     this.state={
       articles: [],
-      loading:true,
+      loading:false,
       page:1
       
     }
   }
-  async componentDidMount()
-  {
-    let url=`https://newsapi.org/v2/top-headlines?country=us&category=${this.props.category}&apiKey=20d0284e6b1244a1a88b772b5c1741f0&page=1&pageSize=${this.props.pageSize}`;
+  update=async ()=>{
+    let url=`https://newsapi.org/v2/top-headlines?country=us&category=${this.props.category}&apiKey=20d0284e6b1244a1a88b772b5c1741f0&page=${this.state.page}&pageSize=${this.props.pageSize}`;
     this.setState({loading:true})
     let data =await fetch(url);
     let parseddata=await data.json();
@@ -35,39 +34,22 @@ static defaultProps = {
     this.setState({articles:parseddata.articles,
       totalResults:parseddata.totalResults,
       loading:false})
-
+  }
+  async componentDidMount()
+  {
+    this.update();
   }
 
-   handleNext=async ()=>{
+   handleNext=()=>{
    console.log("Next is pressed");
-   if(!(this.state.page + 1 > Math.ceil(this.state.totalResults/this.props.pageSize)))
-   {
-      let url=`https://newsapi.org/v2/top-headlines?country=us&category=${this.props.category}&apiKey=20d0284e6b1244a1a88b772b5c1741f0&page=${this.state.page + 1}&pageSize=${this.props.pageSize}`;
-      this.setState({loading:true})
-      let data =await fetch(url);
-      let parseddata=await data.json();
-      console.log(parseddata);
-      this.setState({
-      page:this.state.page + 1,
-      articles:parseddata.articles,
-      loading:false
-      })
-    }
+  this.setState({   page:this.state.page + 1})
+  this.update();
    }
 
-   handlePrevious=async ()=>{
+   handlePrevious=()=>{
     console.log("Previous is pressed");
-    let url=`https://newsapi.org/v2/top-headlines?country=us&category=${this.props.category}&apiKey=20d0284e6b1244a1a88b772b5c1741f0&page=${this.state.page - 1}&pageSize=${this.props.pageSize}`;
-    this.setState({loading:true})
-    let data =await fetch(url);
-    let parseddata=await data.json();
-    console.log(parseddata);
-    this.setState({
-    page:this.state.page - 1,
-    articles:parseddata.articles,
-    loading:false
-    })
-
+    this.setState({   page:this.state.page - 1})
+    this.update();
    }
 
   render() {
@@ -83,7 +65,7 @@ static defaultProps = {
         <div className="row">
           {!this.state.loading && this.state.articles.map((element)=>{
             return <div className="col-md-4" key={element.url}>
-                <NewsItem title={element.title?element.title.slice(0,45):" "} description={element.description?element.description.slice(0,90):" "} imgUrl={element.urlToImage} newsUrl={element.url} />
+                <NewsItem title={element.title?element.title.slice(0,45):" "} description={element.description?element.description.slice(0,90):" "} imgUrl={element.urlToImage} newsUrl={element.url} author={element.author} publishedAt={element.publishedAt} source={element.source.name} />
             </div>
           })}
            
